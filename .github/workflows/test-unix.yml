@@ -21,16 +21,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
+      - name: Create test directories
+        run: mkdir -p tests/bashunit
+      
       - name: Install bashunit
         run: |
-          mkdir -p tests/bashunit
           cd tests
           git clone https://github.com/TypedDevs/bashunit.git bashunit
           cd bashunit
           ./install.sh
+          cd ..
+          pwd
+          ls -la
       
       - name: Run tests
         run: |
+          pwd
+          ls -la tests/
           cd tests
           chmod +x test_check.sh
           ./test_check.sh

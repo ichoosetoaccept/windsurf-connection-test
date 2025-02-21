@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 
+# Get directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # Source bashunit
-source bashunit/bashunit.sh
+source "$SCRIPT_DIR/bashunit/bashunit.sh"
 
 # Source our script but prevent main() from running
-source ../check.sh
+source "$SCRIPT_DIR/../check.sh"
 TESTING=true
 
 # Test environment setup
