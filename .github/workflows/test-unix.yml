@@ -25,6 +25,8 @@ jobs:
         run: |
           curl -s https://bashunit.typeddevs.com/install.sh | bash
           echo "$HOME/.bashunit/bin" >> $GITHUB_PATH
+          ls -la $HOME/.bashunit/bin
+          which bashunit
       
       - name: Run tests
         env:
@@ -32,8 +34,13 @@ jobs:
           BASHUNIT_TEST_PATH: test_check.sh
           BASHUNIT_HOME: ${{ github.workspace }}/.bashunit
         run: |
+          pwd
+          ls -la
           cd tests
+          pwd
+          ls -la
           chmod +x test_check.sh
+          bashunit --version
           bashunit test_check.sh
       
       - name: Run actual script
