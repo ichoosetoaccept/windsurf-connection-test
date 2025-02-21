@@ -1,0 +1,34 @@
+name: Test Windows Script
+
+on:
+  push:
+    paths:
+      - 'check.ps1'
+      - '.github/workflows/test-windows.yml'
+  pull_request:
+    paths:
+      - 'check.ps1'
+  workflow_dispatch:
+
+jobs:
+  test-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run PowerShell script
+        shell: powershell
+        run: |
+          # Enable script execution
+          Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+          
+          # Run the script
+          ./check.ps1
+          
+          # Check if log file was created
+          if (-not (Test-Path connection_test.log)) {
+            throw "Log file was not created"
+          }
+          
+          # Display the log
+          Get-Content connection_test.log

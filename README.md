@@ -56,6 +56,25 @@ The script provides:
 - Detailed error messages when issues are found
 - A log file with additional debugging information
 
+## Testing
+
+### macOS and Linux
+Run the script directly:
+```bash
+./check.sh
+```
+
+### Windows
+The PowerShell script is automatically tested on Windows using GitHub Actions on every push. You can:
+
+1. View the latest test results in the [Actions tab](https://github.com/ichoosetoaccept/windsurf-connection-test/actions)
+2. Manually trigger a test by:
+   - Going to Actions
+   - Selecting "Test Windows Script"
+   - Clicking "Run workflow"
+
+This ensures the Windows script is regularly tested on a real Windows environment with the latest Windows updates and PowerShell version.
+
 ## Security
 
 The script:
