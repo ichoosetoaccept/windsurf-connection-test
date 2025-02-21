@@ -20,29 +20,21 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          submodules: true
       
       - name: Install bashunit
         run: |
-          git clone https://github.com/TypedDevs/bashunit.git
+          git submodule add https://github.com/TypedDevs/bashunit.git
           cd bashunit
-          chmod +x install.sh
-          ./install.sh
-          echo "$HOME/.bashunit/bin" >> $GITHUB_PATH
-          which bashunit || echo "bashunit not in PATH"
+          chmod +x bashunit
+          sudo ln -s $PWD/bashunit /usr/local/bin/bashunit
+          cd ..
       
       - name: Run tests
-        env:
-          BASHUNIT_TARGET_PATH: ../check.sh
-          BASHUNIT_TEST_PATH: test_check.sh
-          BASHUNIT_HOME: ${{ github.workspace }}/.bashunit
         run: |
-          pwd
-          ls -la
           cd tests
-          pwd
-          ls -la
           chmod +x test_check.sh
-          bashunit --version || echo "bashunit command not found"
           bashunit test_check.sh
       
       - name: Run actual script
