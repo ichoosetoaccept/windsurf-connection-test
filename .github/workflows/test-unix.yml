@@ -23,7 +23,7 @@ jobs:
       
       - name: Install bashunit
         run: |
-          curl -s https://bashunit.typeddevs.com/install.sh | bash
+          sudo curl -s https://bashunit.typeddevs.com/install.sh | sudo bash
           which bashunit
           ls -la /usr/local/bin/bashunit*
       
