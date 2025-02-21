@@ -25,10 +25,9 @@ jobs:
       
       - name: Install bashunit
         run: |
-          git submodule add https://github.com/TypedDevs/bashunit.git
+          git clone https://github.com/TypedDevs/bashunit.git
           cd bashunit
-          chmod +x bashunit
-          sudo ln -s $PWD/bashunit /usr/local/bin/bashunit
+          sudo make install
           cd ..
       
       - name: Run tests
