@@ -23,10 +23,12 @@ jobs:
       
       - name: Install bashunit
         run: |
-          curl -s https://bashunit.typeddevs.com/install.sh | bash
+          git clone https://github.com/TypedDevs/bashunit.git
+          cd bashunit
+          chmod +x install.sh
+          ./install.sh
           echo "$HOME/.bashunit/bin" >> $GITHUB_PATH
-          ls -la $HOME/.bashunit/bin
-          which bashunit
+          which bashunit || echo "bashunit not in PATH"
       
       - name: Run tests
         env:
@@ -40,7 +42,7 @@ jobs:
           pwd
           ls -la
           chmod +x test_check.sh
-          bashunit --version
+          bashunit --version || echo "bashunit command not found"
           bashunit test_check.sh
       
       - name: Run actual script
