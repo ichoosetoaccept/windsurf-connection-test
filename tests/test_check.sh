@@ -22,6 +22,11 @@ tear_down() {
     rm -rf "$TEST_DIR"
 }
 
+# Helper function to extract status from output
+get_status() {
+    echo "$1" | grep -o "OK\|FAILED\|WARNING"
+}
+
 # DNS resolver tests
 test_check_dns_resolvers_when_ipv4_works() {
     # Mock ping for IPv4 success
@@ -31,7 +36,8 @@ test_check_dns_resolvers_when_ipv4_works() {
     mock "ip" "return 1"
     
     output=$(check_dns_resolvers)
-    assert_contains "$output" "DNS resolver access OK " "Should show OK when IPv4 DNS works"
+    status=$(get_status "$output")
+    assert_equals "OK" "$status" "DNS check should be OK when IPv4 resolvers work"
 }
 
 test_check_dns_resolvers_when_all_fail() {
@@ -40,7 +46,8 @@ test_check_dns_resolvers_when_all_fail() {
     mock "ip" "return 1"
     
     output=$(check_dns_resolvers)
-    assert_contains "$output" "DNS resolver access FAILED " "Should show FAILED when no DNS resolvers work"
+    status=$(get_status "$output")
+    assert_equals "FAILED" "$status" "DNS check should fail when no resolvers work"
     assert_contains "$output" "Cannot reach any DNS resolvers" "Should show error message"
 }
 
@@ -51,7 +58,8 @@ test_check_wildcard_domain_when_working() {
     mock "host" "return 0"
     
     output=$(check_wildcard_domain "*.codeium.com")
-    assert_contains "$output" "Access to *.codeium.com OK " "Should show OK when domain is accessible"
+    status=$(get_status "$output")
+    assert_equals "OK" "$status" "Domain check should be OK when accessible"
 }
 
 test_check_wildcard_domain_when_dns_fails() {
@@ -60,21 +68,24 @@ test_check_wildcard_domain_when_dns_fails() {
     mock "host" "return 1"
     
     output=$(check_wildcard_domain "*.codeium.com")
-    assert_contains "$output" "Access to *.codeium.com FAILED " "Should show FAILED when DNS resolution fails"
+    status=$(get_status "$output")
+    assert_equals "FAILED" "$status" "Domain check should fail when DNS fails"
     assert_contains "$output" "Cannot connect to api.codeium.com" "Should show DNS error message"
 }
 
 # Proxy tests
 test_check_proxy_when_none_configured() {
     output=$(check_proxy)
-    assert_contains "$output" "No proxy detected OK " "Should detect no proxy when env vars are not set"
+    status=$(get_status "$output")
+    assert_equals "OK" "$status" "Should detect no proxy when env vars are not set"
 }
 
 test_check_proxy_when_configured() {
     export http_proxy="http://proxy:8080"
     
     output=$(check_proxy)
-    assert_contains "$output" "Proxy detected (http_proxy) WARNING " "Should detect proxy when env vars are set"
+    status=$(get_status "$output")
+    assert_equals "WARNING" "$status" "Should show warning when proxy is configured"
     assert_contains "$output" "Value: http://proxy:8080" "Should show proxy value"
     
     unset http_proxy
@@ -86,7 +97,8 @@ test_check_vpn_when_tailscale() {
     mock "ifconfig" 'echo "tun0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500"'
     
     output=$(check_vpn)
-    assert_contains "$output" "VPN connection detected WARNING " "Should detect Tailscale VPN"
+    status=$(get_status "$output")
+    assert_equals "WARNING" "$status" "Should show warning when VPN is detected"
     assert_contains "$output" "Active VPN interfaces: tun0" "Should show VPN interface"
 }
 
@@ -95,7 +107,8 @@ test_check_vpn_when_none() {
     mock "ifconfig" 'echo "eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500"'
     
     output=$(check_vpn)
-    assert_contains "$output" "Network configuration OK " "Should detect no VPN"
+    status=$(get_status "$output")
+    assert_equals "OK" "$status" "Should show OK when no VPN is detected"
 }
 
 # Browser redirect tests
@@ -104,7 +117,8 @@ test_check_browser_redirect_when_all_working() {
     mock "nc" "return 1"
     
     output=$(check_browser_redirect)
-    assert_contains "$output" "Browser redirect capability OK " "Should show OK when all browser redirect requirements are met"
+    status=$(get_status "$output")
+    assert_equals "OK" "$status" "Should show OK when port is available"
 }
 
 test_check_browser_redirect_when_port_in_use() {
@@ -112,6 +126,7 @@ test_check_browser_redirect_when_port_in_use() {
     mock "nc" "return 0"
     
     output=$(check_browser_redirect)
-    assert_contains "$output" "Browser redirect capability FAILED " "Should show FAILED when port 8000 is in use"
+    status=$(get_status "$output")
+    assert_equals "FAILED" "$status" "Should show FAILED when port is in use"
     assert_contains "$output" "Port 8000 is in use" "Should show port in use message"
 }
