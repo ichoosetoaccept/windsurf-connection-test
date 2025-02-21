@@ -59,10 +59,22 @@ The script provides:
 ## Testing
 
 ### macOS and Linux
-Run the script directly:
+The bash script is tested using [bashunit](https://github.com/TypedDevs/bashunit):
+
+1. Install bashunit:
 ```bash
-./check.sh
+git clone https://github.com/TypedDevs/bashunit.git
+cd bashunit
+./install.sh
 ```
+
+2. Run the tests:
+```bash
+cd tests
+./test_check.sh
+```
+
+The script is automatically tested on both macOS and Linux using GitHub Actions on every push.
 
 ### Windows
 The PowerShell script is automatically tested on Windows using GitHub Actions on every push. You can:
@@ -70,10 +82,10 @@ The PowerShell script is automatically tested on Windows using GitHub Actions on
 1. View the latest test results in the [Actions tab](https://github.com/ichoosetoaccept/windsurf-connection-test/actions)
 2. Manually trigger a test by:
    - Going to Actions
-   - Selecting "Test Windows Script"
+   - Selecting "Test Windows Script" or "Test Unix Script"
    - Clicking "Run workflow"
 
-This ensures the Windows script is regularly tested on a real Windows environment with the latest Windows updates and PowerShell version.
+This ensures both scripts are regularly tested on their respective platforms with the latest updates.
 
 ## Security
 

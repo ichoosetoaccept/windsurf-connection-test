@@ -1,0 +1,39 @@
+name: Test Unix Script
+
+on:
+  push:
+    paths:
+      - 'check.sh'
+      - 'tests/**'
+      - '.github/workflows/test-unix.yml'
+  pull_request:
+    paths:
+      - 'check.sh'
+      - 'tests/**'
+  workflow_dispatch:
+
+jobs:
+  test-unix:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install bashunit
+        run: |
+          git clone https://github.com/TypedDevs/bashunit.git
+          cd bashunit
+          ./install.sh
+      
+      - name: Run tests
+        run: |
+          cd tests
+          chmod +x test_check.sh
+          ./test_check.sh
+      
+      - name: Run actual script
+        run: |
+          chmod +x check.sh
+          ./check.sh

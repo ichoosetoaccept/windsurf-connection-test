@@ -251,6 +251,9 @@ check_browser_redirect() {
 }
 
 main() {
+    # Skip main when testing
+    [ "${TESTING:-}" = true ] && return 0
+    
     # Clear previous log
     > "$LOG_FILE"
     log "Starting Windsurf connection test"
@@ -276,7 +279,10 @@ main() {
     printf "\n${BLUE}Detailed logs available in: ${NC}${LOG_FILE}\n\n"
 }
 
+# Only run main if script is executed directly (not sourced)
+if [ "${BASH_SOURCE[0]}" = "$0" ]; then
+    main
+fi
+
 # Redirect stderr to hide nc termination messages
 exec 2>/dev/null
-
-main "$@"
