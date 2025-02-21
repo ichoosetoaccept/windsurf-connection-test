@@ -13,6 +13,10 @@ set_up() {
     OLD_HOME=$HOME
     HOME=$TEST_DIR
     mkdir -p "$TEST_DIR/.config"
+    
+    # Create log file
+    LOG_FILE="$TEST_DIR/connection_test.log"
+    touch "$LOG_FILE"
 }
 
 # Cleanup

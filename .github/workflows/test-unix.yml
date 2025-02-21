@@ -23,7 +23,9 @@ jobs:
       
       - name: Install bashunit
         run: |
-          git clone https://github.com/TypedDevs/bashunit.git
+          mkdir -p tests/bashunit
+          cd tests
+          git clone https://github.com/TypedDevs/bashunit.git bashunit
           cd bashunit
           ./install.sh
       
@@ -34,6 +36,7 @@ jobs:
           ./test_check.sh
       
       - name: Run actual script
+        if: success()
         run: |
           chmod +x check.sh
           ./check.sh
