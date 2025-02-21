@@ -18,12 +18,15 @@ jobs:
       matrix:
         os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
-    container:
-      image: typeddevs/bashunit:latest
     steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: true
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Install bashunit
+        run: |
+          curl -s https://bashunit.typeddevs.com/install.sh > install.sh
+          chmod +x install.sh
+          ./install.sh
       
       - name: Run tests
         run: |
