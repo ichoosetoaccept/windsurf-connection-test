@@ -27,10 +27,15 @@ get_status() {
     echo "$1" | grep -o "OK\|FAILED\|WARNING"
 }
 
+# Helper function to extract error message
+get_error_message() {
+    echo "$1" | grep -o "ℹ️.*" || true
+}
+
 # DNS resolver tests
 test_check_dns_resolvers_when_ipv4_works() {
     # Mock ping for IPv4 success
-    mock "ping" 'case "$4" in "8.8.8.8"|"8.8.4.4") return 0;; *) return 1;; esac'
+    mock "ping" 'if [[ "$4" == "8.8.8.8" || "$4" == "8.8.4.4" ]]; then return 0; else return 1; fi'
     
     # Mock ip for no IPv6
     mock "ip" "return 1"
@@ -48,7 +53,8 @@ test_check_dns_resolvers_when_all_fail() {
     output=$(check_dns_resolvers)
     status=$(get_status "$output")
     assert_equals "FAILED" "$status" "DNS check should fail when no resolvers work"
-    assert_contains "$output" "Cannot reach any DNS resolvers" "Should show error message"
+    error=$(get_error_message "$output")
+    assert_contains "$error" "Cannot reach any DNS resolvers" "Should show error message"
 }
 
 # Domain connectivity tests
@@ -70,7 +76,8 @@ test_check_wildcard_domain_when_dns_fails() {
     output=$(check_wildcard_domain "*.codeium.com")
     status=$(get_status "$output")
     assert_equals "FAILED" "$status" "Domain check should fail when DNS fails"
-    assert_contains "$output" "Cannot connect to api.codeium.com" "Should show DNS error message"
+    error=$(get_error_message "$output")
+    assert_contains "$error" "Cannot connect to api.codeium.com" "Should show DNS error message"
 }
 
 # Proxy tests
@@ -86,7 +93,8 @@ test_check_proxy_when_configured() {
     output=$(check_proxy)
     status=$(get_status "$output")
     assert_equals "WARNING" "$status" "Should show warning when proxy is configured"
-    assert_contains "$output" "Value: http://proxy:8080" "Should show proxy value"
+    error=$(get_error_message "$output")
+    assert_contains "$error" "Value: http://proxy:8080" "Should show proxy value"
     
     unset http_proxy
 }
@@ -99,7 +107,8 @@ test_check_vpn_when_tailscale() {
     output=$(check_vpn)
     status=$(get_status "$output")
     assert_equals "WARNING" "$status" "Should show warning when VPN is detected"
-    assert_contains "$output" "Active VPN interfaces: tun0" "Should show VPN interface"
+    error=$(get_error_message "$output")
+    assert_contains "$error" "Active VPN interfaces: tun0" "Should show VPN interface"
 }
 
 test_check_vpn_when_none() {
@@ -115,6 +124,7 @@ test_check_vpn_when_none() {
 test_check_browser_redirect_when_all_working() {
     # Mock nc to show port is free
     mock "nc" "return 1"
+    mock "lsof" "return 1"
     
     output=$(check_browser_redirect)
     status=$(get_status "$output")
@@ -124,9 +134,11 @@ test_check_browser_redirect_when_all_working() {
 test_check_browser_redirect_when_port_in_use() {
     # Mock nc to show port is in use
     mock "nc" "return 0"
+    mock "lsof" "return 0"
     
     output=$(check_browser_redirect)
     status=$(get_status "$output")
     assert_equals "FAILED" "$status" "Should show FAILED when port is in use"
-    assert_contains "$output" "Port 8000 is in use" "Should show port in use message"
+    error=$(get_error_message "$output")
+    assert_contains "$error" "Cannot bind to port 8000" "Should show port in use message"
 }
