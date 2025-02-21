@@ -281,10 +281,10 @@ main() {
     printf "\n${BLUE}Detailed logs available in: ${NC}${LOG_FILE}\n\n"
 }
 
+# Redirect stderr to hide nc termination messages
+exec 2>/dev/null
+
 # Only run main if script is executed directly (not sourced)
 if [ "${BASH_SOURCE[0]}" = "$0" ]; then
     main
 fi
-
-# Redirect stderr to hide nc termination messages
-exec 2>/dev/null
