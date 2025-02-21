@@ -54,7 +54,7 @@ test_check_dns_resolvers_when_all_fail() {
     status=$(get_status "$output")
     assert_equals "FAILED" "$status" "DNS check should fail when no resolvers work"
     error=$(get_error_message "$output")
-    assert_contains "$error" "Cannot reach any DNS resolvers" "Should show error message"
+    assert_contains "$error" "Cannot reach any DNS resolvers. Check your internet connection." "Should show error message"
 }
 
 # Domain connectivity tests
@@ -77,7 +77,7 @@ test_check_wildcard_domain_when_dns_fails() {
     status=$(get_status "$output")
     assert_equals "FAILED" "$status" "Domain check should fail when DNS fails"
     error=$(get_error_message "$output")
-    assert_contains "$error" "Cannot connect to api.codeium.com" "Should show DNS error message"
+    assert_contains "$error" "Cannot connect to api.codeium.com. Check your DNS and firewall settings." "Should show DNS error message"
 }
 
 # Proxy tests
@@ -94,8 +94,7 @@ test_check_proxy_when_configured() {
     status=$(get_status "$output")
     assert_equals "WARNING" "$status" "Should show warning when proxy is configured"
     error=$(get_error_message "$output")
-    assert_contains "$error" "Environment proxy might affect connectivity" "Should show proxy warning"
-    assert_contains "$error" "Value: http://proxy:8080" "Should show proxy value"
+    assert_contains "$error" "Environment proxy might affect connectivity. Value: http://proxy:8080" "Should show proxy warning"
     
     unset http_proxy
 }
@@ -109,7 +108,7 @@ test_check_vpn_when_tailscale() {
     status=$(get_status "$output")
     assert_equals "WARNING" "$status" "Should show warning when VPN is detected"
     error=$(get_error_message "$output")
-    assert_contains "$error" "Active VPN interfaces: tun0" "Should show VPN interface"
+    assert_contains "$error" "Active VPN interfaces: tun0 . If you experience issues, try disconnecting temporarily." "Should show VPN interface"
 }
 
 test_check_vpn_when_none() {
@@ -126,6 +125,8 @@ test_check_browser_redirect_when_all_working() {
     # Mock nc to show port is free
     mock "nc" "return 1"
     mock "lsof" "return 1"
+    mock "ping" "return 0"  # For localhost check
+    mock "command" 'if [[ "$2" == "open" ]]; then return 0; else return 1; fi'
     
     output=$(check_browser_redirect)
     status=$(get_status "$output")
@@ -136,6 +137,8 @@ test_check_browser_redirect_when_port_in_use() {
     # Mock nc to show port is in use
     mock "nc" "return 0"
     mock "lsof" "return 0"
+    mock "ping" "return 0"  # For localhost check
+    mock "command" 'if [[ "$2" == "open" ]]; then return 0; else return 1; fi'
     
     output=$(check_browser_redirect)
     status=$(get_status "$output")
