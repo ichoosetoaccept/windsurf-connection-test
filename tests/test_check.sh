@@ -10,6 +10,9 @@ set_up() {
     # Create log file
     LOG_FILE="$TEST_DIR/connection_test.log"
     touch "$LOG_FILE"
+
+    # Source the script under test
+    source ../check.sh
 }
 
 # Cleanup
@@ -121,6 +124,3 @@ test_check_browser_redirect_when_port_in_use() {
     output=$(check_browser_redirect)
     assert_contains "$output" "FAILED" "Should show FAILED when port 8000 is in use"
 }
-
-# Run the tests
-run_tests
