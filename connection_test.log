@@ -1,0 +1,15 @@
+[2025-02-21 15:47:15] Starting connection check
+[2025-02-21 15:47:15] Testing wildcard domain: *.codeium.com
+[2025-02-21 15:47:16] SSL certificate validation failed for *.codeium.com
+[2025-02-21 15:47:16] Failed to verify access to *.codeium.com: SSL certificate validation failed
+[2025-02-21 15:47:16] Testing wildcard domain: *.codeiumdata.com
+[2025-02-21 15:47:16] SSL certificate validation failed for *.codeiumdata.com
+[2025-02-21 15:47:16] Connection failed to codeiumdata.com
+[2025-02-21 15:47:16] Failed to verify access to *.codeiumdata.com: Cannot connect to base domain
+[2025-02-21 15:47:16] Checking for proxy configuration
+[2025-02-21 15:47:16] No proxy configuration found
+[2025-02-21 15:47:16] Checking for VPN connection
+[2025-02-21 15:47:16] VPN detected: tun/tap interface found
+[2025-02-21 15:47:16] Checking browser redirect capabilities
+[2025-02-21 15:47:16] Port 8000 is available for browser redirect
+[2025-02-21 15:47:17] Failed to bind to localhost
