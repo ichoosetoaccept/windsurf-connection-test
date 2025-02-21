@@ -48,14 +48,13 @@ print_header() {
 }
 
 check_wildcard_domain() {
-    local domain="$1"
-    local base_domain="${domain#*.}"  # Remove first subdomain
-    local known_endpoint="api.$base_domain"  # Use known working endpoint
+    local domain="${1:-*.codeium.com}"  # Default to *.codeium.com if no domain provided
+    local known_endpoint="api.codeium.com"
     local timeout=5
     local success=true
     local error_msg=""
     
-    log "Testing wildcard domain: *.$base_domain"
+    log "Testing wildcard domain: $domain"
     
     # 1. Check DNS resolution using both IPv4 and IPv6
     if ! (host -t A "$known_endpoint" >/dev/null 2>&1 || host -t AAAA "$known_endpoint" >/dev/null 2>&1); then
@@ -72,12 +71,12 @@ check_wildcard_domain() {
     fi
     
     if [ "$success" = true ]; then
-        print_status "Access to *.$base_domain" "OK" "$CHECK_MARK"
-        log "Successfully verified access to *.$base_domain"
+        print_status "Access to $domain" "OK" "$CHECK_MARK"
+        log "Successfully verified access to $domain"
     else
-        print_status "Access to *.$base_domain" "FAILED" "$CROSS_MARK" \
+        print_status "Access to $domain" "FAILED" "$CROSS_MARK" \
             "$error_msg. Check your DNS and firewall settings."
-        log "Failed to verify access to *.$base_domain: $error_msg"
+        log "Failed to verify access to $domain: $error_msg"
     fi
 }
 
