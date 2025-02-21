@@ -22,25 +22,32 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Create test directories
-        run: mkdir -p tests/bashunit
+        run: |
+          mkdir -p tests/bashunit
+          pwd
+          ls -la
+          ls -la tests/
       
       - name: Install bashunit
         run: |
           cd tests
           git clone https://github.com/TypedDevs/bashunit.git bashunit
           cd bashunit
+          ls -la
           ./install.sh
           cd ..
           pwd
           ls -la
+          ls -la bashunit/
       
       - name: Run tests
         run: |
           pwd
           ls -la tests/
+          ls -la tests/bashunit/
           cd tests
           chmod +x test_check.sh
-          ./test_check.sh
+          bash -x ./test_check.sh
       
       - name: Run actual script
         if: success()
