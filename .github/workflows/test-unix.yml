@@ -29,10 +29,14 @@ jobs:
           ./install.sh
       
       - name: Run tests
+        env:
+          BASHUNIT_DEFAULT_PATH: tests/test_check.sh
+          BASHUNIT_SIMPLE_OUTPUT: true
+          BASHUNIT_SHOW_HEADER: false
         run: |
           cd tests
           chmod +x test_check.sh
-          bashunit test_check.sh
+          bashunit
       
       - name: Run actual script
         if: success()
