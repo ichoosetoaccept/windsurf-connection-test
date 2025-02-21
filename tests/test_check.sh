@@ -1,12 +1,5 @@
 #!/usr/bin/env bash
 
-# Source bashunit (installed globally)
-source bashunit
-
-# Source our script but prevent main() from running
-source ../check.sh
-TESTING=true
-
 # Test environment setup
 set_up() {
     TEST_DIR=$(mktemp -d)

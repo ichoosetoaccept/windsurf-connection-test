@@ -23,15 +23,19 @@ jobs:
       
       - name: Install bashunit
         run: |
-          sudo curl -s https://bashunit.typeddevs.com/install.sh | sudo bash
-          which bashunit
-          ls -la /usr/local/bin/bashunit*
+          curl -s https://bashunit.typeddevs.com/install.sh | bash
+          export BASHUNIT_HOME="$HOME/.bashunit"
+          export PATH="$BASHUNIT_HOME/bin:$PATH"
       
       - name: Run tests
+        env:
+          BASHUNIT_TARGET_PATH: check.sh
+          BASHUNIT_TEST_PATH: tests/test_check.sh
+          BASHUNIT_HOME: ${{ env.HOME }}/.bashunit
         run: |
           cd tests
           chmod +x test_check.sh
-          bash -x ./test_check.sh 2>&1
+          bashunit test_check.sh
       
       - name: Run actual script
         if: success()
