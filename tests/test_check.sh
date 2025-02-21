@@ -13,6 +13,7 @@ set_up() {
 
     # Source the script under test
     source ../check.sh
+    TESTING=true
 }
 
 # Cleanup
@@ -33,15 +34,16 @@ test_check_dns_resolvers_when_ipv4_works() {
     mock "ip" "return 1"
     
     output=$(check_dns_resolvers)
-    assert_contains "$output" "DNS resolver access                                OK " "Should show OK when IPv4 DNS works"
+    assert_contains "$output" "DNS resolver access                                OK ✅" "Should show OK when IPv4 DNS works"
 }
 
 test_check_dns_resolvers_when_all_fail() {
     # Mock ping to fail for all
     mock "ping" "return 1"
+    mock "ip" "return 1"
     
     output=$(check_dns_resolvers)
-    assert_contains "$output" "DNS resolver access                                FAILED " "Should show FAILED when no DNS resolvers work"
+    assert_contains "$output" "DNS resolver access                                FAILED ❌" "Should show FAILED when no DNS resolvers work"
     assert_contains "$output" "Cannot reach any DNS resolvers" "Should show error message"
 }
 
@@ -49,31 +51,33 @@ test_check_dns_resolvers_when_all_fail() {
 test_check_wildcard_domain_when_working() {
     # Mock curl success
     mock "curl" "return 0"
+    mock "host" "return 0"
     
     output=$(check_wildcard_domain "*.codeium.com")
-    assert_contains "$output" "Access to *.codeium.com                            OK " "Should show OK when domain is accessible"
+    assert_contains "$output" "Access to *.codeium.com                            OK ✅" "Should show OK when domain is accessible"
 }
 
 test_check_wildcard_domain_when_dns_fails() {
     # Mock curl failure
     mock "curl" "return 6"  # DNS error
+    mock "host" "return 1"
     
     output=$(check_wildcard_domain "*.codeium.com")
-    assert_contains "$output" "Access to *.codeium.com                            FAILED " "Should show FAILED when DNS resolution fails"
-    assert_contains "$output" "DNS resolution failed" "Should show DNS error message"
+    assert_contains "$output" "Access to *.codeium.com                            FAILED ❌" "Should show FAILED when DNS resolution fails"
+    assert_contains "$output" "Cannot connect to api.codeium.com" "Should show DNS error message"
 }
 
 # Proxy tests
 test_check_proxy_when_none_configured() {
     output=$(check_proxy)
-    assert_contains "$output" "No proxy detected                                  OK " "Should detect no proxy when env vars are not set"
+    assert_contains "$output" "No proxy detected                                  OK ✅" "Should detect no proxy when env vars are not set"
 }
 
 test_check_proxy_when_configured() {
     export http_proxy="http://proxy:8080"
     
     output=$(check_proxy)
-    assert_contains "$output" "Proxy detected (http_proxy)                        WARNING " "Should detect proxy when env vars are set"
+    assert_contains "$output" "Proxy detected (http_proxy)                        WARNING ⚠️" "Should detect proxy when env vars are set"
     assert_contains "$output" "Value: http://proxy:8080" "Should show proxy value"
     
     unset http_proxy
@@ -85,7 +89,8 @@ test_check_vpn_when_tailscale() {
     mock "ifconfig" 'echo "tun0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500"'
     
     output=$(check_vpn)
-    assert_contains "$output" "VPN detected (Tailscale)                           OK " "Should detect Tailscale VPN"
+    assert_contains "$output" "VPN connection detected                            WARNING ⚠️" "Should detect Tailscale VPN"
+    assert_contains "$output" "Active VPN interfaces: tun0" "Should show VPN interface"
 }
 
 test_check_vpn_when_none() {
@@ -93,7 +98,7 @@ test_check_vpn_when_none() {
     mock "ifconfig" 'echo "eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500"'
     
     output=$(check_vpn)
-    assert_contains "$output" "No VPN detected                                    OK " "Should detect no VPN"
+    assert_contains "$output" "Network configuration                              OK ✅" "Should detect no VPN"
 }
 
 # Browser redirect tests
@@ -102,7 +107,7 @@ test_check_browser_redirect_when_all_working() {
     mock "nc" "return 1"
     
     output=$(check_browser_redirect)
-    assert_contains "$output" "Browser redirect capability                        OK " "Should show OK when all browser redirect requirements are met"
+    assert_contains "$output" "Browser redirect capability                        OK ✅" "Should show OK when all browser redirect requirements are met"
 }
 
 test_check_browser_redirect_when_port_in_use() {
@@ -110,6 +115,6 @@ test_check_browser_redirect_when_port_in_use() {
     mock "nc" "return 0"
     
     output=$(check_browser_redirect)
-    assert_contains "$output" "Browser redirect capability                        FAILED " "Should show FAILED when port 8000 is in use"
+    assert_contains "$output" "Browser redirect capability                        FAILED ❌" "Should show FAILED when port 8000 is in use"
     assert_contains "$output" "Port 8000 is in use" "Should show port in use message"
 }
