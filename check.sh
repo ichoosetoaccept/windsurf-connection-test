@@ -252,7 +252,9 @@ check_browser_redirect() {
 
 main() {
     # Skip main when testing
-    [ "${TESTING:-}" = true ] && return 0
+    if [ "${TESTING:-}" = true ]; then
+        return 0
+    fi
     
     # Clear previous log
     > "$LOG_FILE"
@@ -265,7 +267,7 @@ main() {
     # Domain connectivity
     print_header "Domain Connectivity" "$GLOBE"
     check_dns_resolvers
-    check_wildcard_domain "*.codeium.com"
+    check_wildcard_domain
     
     # Network configuration
     print_header "Network Configuration" "$LOCK"

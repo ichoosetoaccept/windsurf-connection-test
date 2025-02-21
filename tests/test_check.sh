@@ -50,7 +50,7 @@ test_check_wildcard_domain_when_working() {
     # Mock curl success
     mock "curl" "return 0"
     
-    output=$(check_wildcard_domain)
+    output=$(check_wildcard_domain "*.codeium.com")
     assert_contains "$output" "Access to *.codeium.com                            OK " "Should show OK when domain is accessible"
 }
 
@@ -58,7 +58,7 @@ test_check_wildcard_domain_when_dns_fails() {
     # Mock curl failure
     mock "curl" "return 6"  # DNS error
     
-    output=$(check_wildcard_domain)
+    output=$(check_wildcard_domain "*.codeium.com")
     assert_contains "$output" "Access to *.codeium.com                            FAILED " "Should show FAILED when DNS resolution fails"
     assert_contains "$output" "DNS resolution failed" "Should show DNS error message"
 }
