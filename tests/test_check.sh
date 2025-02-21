@@ -35,7 +35,7 @@ get_error_message() {
 # DNS resolver tests
 test_check_dns_resolvers_when_ipv4_works() {
     # Mock ping for IPv4 success
-    mock "ping" 'if [[ "$4" == "8.8.8.8" || "$4" == "8.8.4.4" ]]; then return 0; else return 1; fi'
+    mock "ping" 'if [[ "$*" =~ "8.8.8.8" || "$*" =~ "8.8.4.4" ]]; then return 0; else return 1; fi'
     
     # Mock ip for no IPv6
     mock "ip" "return 1"
@@ -94,6 +94,7 @@ test_check_proxy_when_configured() {
     status=$(get_status "$output")
     assert_equals "WARNING" "$status" "Should show warning when proxy is configured"
     error=$(get_error_message "$output")
+    assert_contains "$error" "Environment proxy might affect connectivity" "Should show proxy warning"
     assert_contains "$error" "Value: http://proxy:8080" "Should show proxy value"
     
     unset http_proxy
@@ -140,5 +141,5 @@ test_check_browser_redirect_when_port_in_use() {
     status=$(get_status "$output")
     assert_equals "FAILED" "$status" "Should show FAILED when port is in use"
     error=$(get_error_message "$output")
-    assert_contains "$error" "Cannot bind to port 8000" "Should show port in use message"
+    assert_contains "$error" "Port 8000 is in use by another application" "Should show port in use message"
 }
